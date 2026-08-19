@@ -68,7 +68,14 @@ Open [http://localhost:8000](http://localhost:8000) — both the UI and API run 
 
 ## Demo
 
-*Screenshot placeholder — add after recording*
+<img width="1919" height="1024" alt="image" src="https://github.com/user-attachments/assets/64fde8a3-a467-4630-bba0-66807134d3c4" />
+
+<img width="808" height="918" alt="image_54" src="https://github.com/user-attachments/assets/3d54af1d-dc01-493f-82f2-aa71645439eb" />
+
+<img width="825" height="884" alt="image" src="https://github.com/user-attachments/assets/35e50c94-3a1c-4d1d-81c8-1b042a7f592b" />
+
+
+
 
 ## Design decisions
 
