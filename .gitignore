@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+.vscode/
+debug_*.py
+list_models.py

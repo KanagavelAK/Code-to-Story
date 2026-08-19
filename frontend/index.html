@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code to Story 📖</title>
+    <meta name="description" content="Paste any code block and get an AI-generated plain English story that explains what it does — like a children's book for junior developers.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(139, 92, 246, 0.3);
+            --text-primary: #f0f0f5;
+            --text-secondary: #8b8b9e;
+            --text-muted: #5a5a6e;
+            --accent-purple: #8b5cf6;
+            --accent-purple-glow: rgba(139, 92, 246, 0.15);
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.08);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== BACKGROUND AMBIENT ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+            animation: ambientDrift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes ambientDrift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-2%, -1%) rotate(1deg); }
+        }
+
+        /* ===== LAYOUT ===== */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 48px 24px 32px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--accent-purple-glow);
+            border: 1px solid var(--border-accent);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-purple);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .header-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent-purple);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #f0f0f5 0%, #8b8b9e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* ===== EXAMPLE SNIPPETS ===== */
+        .examples-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-example {
+            padding: 6px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-example:hover {
+            color: var(--accent-purple);
+            border-color: var(--border-accent);
+            background: var(--accent-purple-glow);
+        }
+
+        /* ===== INPUT SECTION ===== */
+        .input-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(12px);
+            transition: border-color var(--transition-smooth);
+        }
+
+        .input-section:focus-within {
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        select {
+            appearance: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 36px 10px 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color var(--transition-fast);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b8b9e' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        select:hover, select:focus {
+            border-color: var(--accent-purple);
+            outline: none;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            max-height: 400px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            resize: vertical;
+            transition: border-color var(--transition-fast);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea:hover, textarea:focus {
+            border-color: var(--accent-purple);
+            outline: none;
+        }
+
+        /* ===== BUTTON ===== */
+        .btn-generate {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-purple), #7c3aed);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .btn-generate::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 600ms ease;
+        }
+
+        .btn-generate:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ===== LOADING STATE ===== */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 48px 24px;
+            animation: fadeIn var(--transition-smooth) ease;
+        }
+
+        .loading-container.visible {
+            display: flex;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            animation: pulseText 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ===== META BAR (timer + mode badge) ===== */
+        .meta-bar {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            animation: fadeIn var(--transition-smooth) ease;
+        }
+
+        .meta-bar.visible {
+            display: flex;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .chip-timer {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .chip-mode {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+        }
+
+        /* ===== RESULT SECTIONS ===== */
+        .results-container {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: slideUp 500ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .results-container.visible {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            transition: border-color var(--transition-smooth);
+        }
+
+        .result-card:hover {
+            border-color: var(--glass-border);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .result-label {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-label .emoji {
+            font-size: 18px;
+        }
+
+        .story-accent { color: var(--accent-purple); }
+        .summary-accent { color: var(--accent-amber); }
+        .steps-accent { color: var(--accent-emerald); }
+
+        /* ===== STORY CARD ===== */
+        .story-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            font-weight: 400;
+            letter-spacing: 0.1px;
+            white-space: pre-line;
+        }
+
+        .story-card {
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        .story-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ===== SUMMARY CARD ===== */
+        .summary-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .summary-card {
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        /* ===== STEPS CARD ===== */
+        .steps-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+            animation: fadeIn var(--transition-smooth) ease;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--accent-emerald);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 1px;
+        }
+
+        .steps-card {
+            border-left: 3px solid var(--accent-emerald);
+        }
+
+        /* ===== ACTION BUTTONS (copy, read aloud) ===== */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-action:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-purple);
+            background: var(--accent-purple-glow);
+        }
+
+        .btn-action.active {
+            color: var(--accent-amber);
+            border-color: var(--accent-amber);
+        }
+
+        .btn-action.copied {
+            color: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+        }
+
+        /* ===== ERROR STATE ===== */
+        .error-banner {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: var(--radius-md);
+            color: var(--accent-rose);
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideUp 300ms ease;
+        }
+
+        .error-banner.visible {
+            display: flex;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 32px 0 16px;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 48px;
+        }
+
+        footer p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .container { padding: 32px 16px 24px; }
+            h1 { font-size: 28px; }
+            .form-row { flex-direction: column; }
+            .input-section { padding: 20px; }
+            .result-card { padding: 18px; }
+            .examples-row { gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">AI Powered</div>
+            <h1>Code to Story 📖</h1>
+            <p class="subtitle">Paste any code → Get a story a junior can follow</p>
+        </header>
+
+        <!-- Example Snippets -->
+        <div class="examples-row">
+            <button class="btn-example" onclick="loadExample('function')">⚡ Try: Function</button>
+            <button class="btn-example" onclick="loadExample('loop')">🔄 Try: Loop</button>
+            <button class="btn-example" onclick="loadExample('class')">🐕 Try: Class</button>
+        </div>
+
+        <!-- Input Section -->
+        <section class="input-section" id="input-section">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="language-select">Select language</label>
+                    <select id="language-select">
+                        <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="Java">Java</option>
+                        <option value="C++">C++</option>
+                        <option value="TypeScript">TypeScript</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="code-input">Paste your code here</label>
+                <textarea id="code-input" placeholder="def greet(name):&#10;    return f'Hello, {name}!'"
+                          spellcheck="false"></textarea>
+            </div>
+
+            <button class="btn-generate" id="generate-btn" onclick="handleGenerate()">
+                Tell the Story →
+            </button>
+        </section>
+
+        <!-- Loading State -->
+        <div class="loading-container" id="loading">
+            <div class="loader"></div>
+            <p class="loading-text">Writing your story...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-banner" id="error-banner">
+            <span>⚠️</span>
+            <span id="error-message">Something went wrong. Is the backend running?</span>
+        </div>
+
+        <!-- Meta Bar (timer + mode badge) -->
+        <div class="meta-bar" id="meta-bar">
+            <span class="meta-chip chip-timer" id="timer-chip">⚡ 0.0s</span>
+            <span class="meta-chip chip-mode" id="mode-chip">📘 Quick Story</span>
+        </div>
+
+        <!-- Results -->
+        <div class="results-container" id="results">
+            <!-- Story Card -->
+            <div class="result-card story-card">
+                <div class="result-header">
+                    <span class="result-label story-accent">
+                        <span class="emoji">📖</span> The Story
+                    </span>
+                    <div class="story-actions">
+                        <button class="btn-action" id="read-aloud-btn" onclick="toggleReadAloud()">
+                            🔊 Read Aloud
+                        </button>
+                        <button class="btn-action" id="copy-story-btn" onclick="copyStory()">
+                            📋 Copy
+                        </button>
+                    </div>
+                </div>
+                <p class="story-text" id="story-text"></p>
+            </div>
+
+            <!-- Summary Card -->
+            <div class="result-card summary-card">
+                <div class="result-header">
+                    <span class="result-label summary-accent">
+                        <span class="emoji">💡</span> In One Line
+                    </span>
+                </div>
+                <p class="summary-text" id="summary-text"></p>
+            </div>
+
+            <!-- Key Steps Card -->
+            <div class="result-card steps-card">
+                <div class="result-header">
+                    <span class="result-label steps-accent">
+                        <span class="emoji">🔑</span> Key Steps
+                    </span>
+                </div>
+                <ol class="steps-list" id="steps-list"></ol>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>Built by <strong>Kanagavel A K</strong> · AI Native Mentor Sprint</p>
+        </footer>
+    </div>
+
+    <script>
+        // Backend API base URL
+        const API_URL = "http://localhost:8000";
+
+        // Store the last story for copy and read aloud
+        let lastStory = "";
+
+        // Track if speech is currently playing
+        let isSpeaking = false;
+
+        // Example code snippets for the Try buttons
+        const EXAMPLES = {
+            function: "def add(a, b):\n    return a + b",
+            loop: "for i in range(5):\n    if i % 2 == 0:\n        print(i)",
+            class: 'class Dog:\n    def __init__(self, name):\n        self.name = name\n    def bark(self):\n        return f"{self.name} says woof!"',
+        };
+
+        /* Load an example snippet into the textarea */
+        function loadExample(type) {
+            document.getElementById("code-input").value = EXAMPLES[type];
+            document.getElementById("language-select").value = "Python";
+            document.getElementById("code-input").focus();
+        }
+
+        /* Show or hide an element by toggling its 'visible' class */
+        function toggleVisible(elementId, show) {
+            const el = document.getElementById(elementId);
+            if (show) {
+                el.classList.add("visible");
+            } else {
+                el.classList.remove("visible");
+            }
+        }
+
+        /* Reset the UI to its default state before a new request */
+        function resetUI() {
+            toggleVisible("loading", false);
+            toggleVisible("results", false);
+            toggleVisible("error-banner", false);
+            toggleVisible("meta-bar", false);
+            stopReadAloud();
+        }
+
+        /* Determine the story mode based on line count */
+        function getStoryMode(code) {
+            const lines = code.trim().split("\n").filter(function(l) { return l.trim(); });
+            return lines.length >= 15 ? "chapter" : "quick";
+        }
+
+        /* Display a typing animation effect on the story text */
+        function typeText(element, text, speed) {
+            speed = speed || 12;
+            element.textContent = "";
+            let i = 0;
+
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+
+            type();
+        }
+
+        /* Render the three result sections with the API response data */
+        function renderResults(data, elapsedMs, mode) {
+            lastStory = data.story;
+
+            // Update meta bar — timer and mode badge
+            document.getElementById("timer-chip").textContent = "⚡ " + (elapsedMs / 1000).toFixed(1) + "s";
+            document.getElementById("mode-chip").textContent = mode === "chapter" ? "📚 Chapter Mode" : "📘 Quick Story";
+            toggleVisible("meta-bar", true);
+
+            // Typing effect for the story
+            const storyEl = document.getElementById("story-text");
+            typeText(storyEl, data.story);
+
+            // Summary — instant
+            document.getElementById("summary-text").textContent = data.summary;
+
+            // Key steps — build numbered list
+            const stepsList = document.getElementById("steps-list");
+            stepsList.innerHTML = "";
+
+            data.key_steps.forEach(function(step, index) {
+                const li = document.createElement("li");
+                li.className = "step-item";
+                li.style.animationDelay = (index * 100) + "ms";
+                li.innerHTML =
+                    '<span class="step-number">' + (index + 1) + '</span>' +
+                    '<span>' + step + '</span>';
+                stepsList.appendChild(li);
+            });
+
+            toggleVisible("results", true);
+        }
+
+        /* Copy the story text to the clipboard */
+        async function copyStory() {
+            const btn = document.getElementById("copy-story-btn");
+
+            try {
+                await navigator.clipboard.writeText(lastStory);
+                btn.innerHTML = "✅ Copied!";
+                btn.classList.add("copied");
+
+                setTimeout(function() {
+                    btn.innerHTML = "📋 Copy";
+                    btn.classList.remove("copied");
+                }, 2000);
+            } catch (err) {
+                btn.innerHTML = "❌ Failed";
+                setTimeout(function() {
+                    btn.innerHTML = "📋 Copy";
+                }, 2000);
+            }
+        }
+
+        /* Stop any ongoing speech synthesis */
+        function stopReadAloud() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            isSpeaking = false;
+            const btn = document.getElementById("read-aloud-btn");
+            if (btn) {
+                btn.innerHTML = "🔊 Read Aloud";
+                btn.classList.remove("active");
+            }
+        }
+
+        /* Toggle the read aloud feature using the browser Speech API */
+        function toggleReadAloud() {
+            const btn = document.getElementById("read-aloud-btn");
+
+            if (isSpeaking) {
+                stopReadAloud();
+                return;
+            }
+
+            if (!lastStory) return;
+
+            const utterance = new SpeechSynthesisUtterance(lastStory);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+
+            utterance.onend = function() {
+                isSpeaking = false;
+                btn.innerHTML = "🔊 Read Aloud";
+                btn.classList.remove("active");
+            };
+
+            speechSynthesis.speak(utterance);
+            isSpeaking = true;
+            btn.innerHTML = "⏹️ Stop";
+            btn.classList.add("active");
+        }
+
+        /* Main handler — validate input, call the API, and render results */
+        async function handleGenerate() {
+            const code = document.getElementById("code-input").value.trim();
+            const language = document.getElementById("language-select").value;
+            const btn = document.getElementById("generate-btn");
+
+            // Don't submit if the code area is empty
+            if (!code) {
+                document.getElementById("code-input").focus();
+                return;
+            }
+
+            // Detect story mode for the badge
+            const mode = getStoryMode(code);
+
+            // Reset previous state and show loading
+            resetUI();
+            btn.disabled = true;
+            btn.textContent = "Generating...";
+            toggleVisible("loading", true);
+
+            const startTime = performance.now();
+
+            try {
+                const response = await fetch(API_URL + "/convert", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: code, language: language }),
+                });
+
+                const elapsedMs = Math.round(performance.now() - startTime);
+
+                if (!response.ok) {
+                    throw new Error("Server returned " + response.status);
+                }
+
+                const data = await response.json();
+                toggleVisible("loading", false);
+                renderResults(data, elapsedMs, mode);
+            } catch (err) {
+                toggleVisible("loading", false);
+                document.getElementById("error-message").textContent =
+                    "Something went wrong. Is the backend running?";
+                toggleVisible("error-banner", true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Tell the Story →";
+            }
+        }
+
+        /* Allow Ctrl+Enter to submit from the textarea */
+        document.getElementById("code-input").addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.key === "Enter") {
+                handleGenerate();
+            }
+        });
+    </script>
+</body>
+</html>
