@@ -67,13 +67,13 @@ Open [http://localhost:8000](http://localhost:8000) — both the UI and API run 
 | POST   | `/convert` | Converts code to story   |
 
 ## Demo
+### Ex Problem : 3Sum
 
-<img width="1919" height="1024" alt="image" src="https://github.com/user-attachments/assets/64fde8a3-a467-4630-bba0-66807134d3c4" />
+<img width="1919" height="1027" alt="image" src="https://github.com/user-attachments/assets/d825fd39-391a-4bc8-8e97-cade0bee1559" />
 
-<img width="808" height="918" alt="image_54" src="https://github.com/user-attachments/assets/3d54af1d-dc01-493f-82f2-aa71645439eb" />
+<img width="1917" height="1022" alt="image" src="https://github.com/user-attachments/assets/accaf972-b072-49de-bce8-d9e2c192e542" />
 
-<img width="825" height="884" alt="image" src="https://github.com/user-attachments/assets/35e50c94-3a1c-4d1d-81c8-1b042a7f592b" />
-
+<img width="1919" height="1028" alt="image" src="https://github.com/user-attachments/assets/52fb01f6-74fe-42dd-8095-3e451d80a736" />
 
 
 
@@ -99,4 +99,4 @@ All three are production patterns — you always sanitize LLM output before proc
 
 ## Built by
 
-**Kanagavel A K** · AI Native Mentor Sprint
+**Kanagavel A K**
