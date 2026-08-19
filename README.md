@@ -1,4 +1,4 @@
-# Code to Story 📖
+# Code to Story 
 
 > Paste any code block → Get a plain English story a junior can follow.
 
